@@ -1,13 +1,35 @@
 const app = require("express")();
-const httpServer = require("http").createServer(app);
-const socketIO = require("socket.io")(httpServer);
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
-const PORT = 3001;
+const moment = require("moment");
+const UsersDB = require("./utils/user");
 
-socketIO.on("connection", socket => {
-  console.log('New connection ', socket.id);
-})
+const PORT = 3005;
 
-httpServer.listen(PORT, () => {
-  console.log(`Server running in http://localhost:${PORT}`);
+io.on("connection", (socket) => {
+  console.log(`Client ${socket.id} connection`);
+
+  socket.on("initConnect", ({ username, room }) => {
+    const user = UsersDB.userJoin(socket.id, username, room);
+    socket.join(user.room);
+
+    socket.emit("hello", {
+      "username" : "Chat Boot",
+      "content" : `${user.username} has joined the chat`,
+      "time" : moment().format("h:mm a"),
+    });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running at port: ${PORT}`);
 });

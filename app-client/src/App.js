@@ -1,18 +1,17 @@
-import { useEffect, useRef } from "react";
-import socketIOClient from "socket.io-client";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
-const HOST = "http://localhost:3001";
+import "./App.css";
+import SelectRoom from "./pages/SelectRoom";
+import RoomChat from "./pages/RoomChat";
 
 function App() {
-  const socketRef = useRef();
-
-  useEffect(() => {
-    socketRef.current = socketIOClient.connect(HOST);
-  }, [])
-
   return (
-    <div className="App">
-    </div>
+    <>
+      <Router>
+        <Route path="/" exact component={SelectRoom} />
+        <Route path="/chat" component={RoomChat} />
+      </Router>
+    </>
   );
 }
 
